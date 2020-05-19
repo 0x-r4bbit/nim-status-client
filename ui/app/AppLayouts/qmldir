@@ -1,3 +1,4 @@
 ChatLayout 1.0 ChatLayout.qml
 NodeLayout 1.0 NodeLayout.qml
 WalletLayout 1.0 Wallet/WalletLayout.qml
+ProfileLayout 1.0 ProfileLayout.qml
