@@ -6,8 +6,16 @@ noBackup/
 *.qml.autosave
 .vscode
 bin/
+pkg/
 vendor/.nimble
 *.AppImage
 tmp
 nimcache
 .DS_Store
+node_modules
+npm-debug.log*
+npm-shrinkwrap.json
+package
+yarn-debug.log*
+yarn-error.log*
+yarn.lock
