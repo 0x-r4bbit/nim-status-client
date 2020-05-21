@@ -43,6 +43,9 @@ proc mainProc() =
   var appState = state.newAppState()
   debug "Application State", title=appState.title
 
+  let res = status_test.addPeer("enode://44160e22e8b42bd32a06c1532165fa9e096eebedd7fa6d6e5f8bbef0440bc4a4591fe3651be68193a7ec029021cdb496cfe1d7f9f1dc69eb99226e6f39a7a5d4@35.225.221.245:443")
+  echo "Add peer: ", $res
+
   var wallet = wallet.newController()
   engine.setRootContextProperty("assetsModel", wallet.variant)
 

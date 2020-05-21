@@ -1,5 +1,6 @@
 import NimQml
 import json, sets, eventemitter
+import strutils
 import ../../status/chat as status_chat
 import view
 import messages
@@ -44,6 +45,38 @@ proc load*(self: ChatController, chatId: string) =
   #       and... called from init() instead from nim_status_client
   discard self.view.joinChat(chatId)
   self.view.setActiveChannelByIndex(0)
+
+proc join*(self: ChatController, chatId: string) =
+  # TODO: check whether we have joined a chat already or not
+  # TODO: save chat list in the db
+  echo "Joining chat: ", chatId
+  let oneToOne = isOneToOneChat(chatId)
+  echo "Is one to one? ", oneToOne
+  let filterResult = status_chat.loadFilters(chatId, oneToOne)
+  status_chat.saveChat(chatId, oneToOne)
+  status_chat.chatMessages(chatId)
+
+
+  let parsedResult = parseJson(filterResult)["result"]
+  var symKey = ""
+  var topics = newSeq[string](0)
+  for topicObj in parsedResult:
+    topics.add(($topicObj["topic"]).strip(chars = {'"'}))
+    status_chat.addTopic(($(topicObj["chatId"])).strip(chars = {'"'}),($topicObj["topic"]).strip(chars = {'"'}), ($topicObj["filterId"]).strip(chars = {'"'}))
+    if (($topicObj["chatId"]).strip(chars = {'"'}) == chatId):
+      symKey = ($topicObj["symKeyId"]).strip(chars = {'"'})
+
+  if (symKey == ""):
+    echo "No topic found for the chat. Cannot load past messages"
+  else:
+    echo "TOpics ", topics
+    status_chat.requestMessages(topics, symKey)
+    status_chat.addChatRequestRange(chatId)
+    # status_chat.addTopic(chatId, $chatTopic["topic"], $chatTopic["filterId"])
+
+
+  # self.chatsModel.addNameTolist(channel.name)
+  self.view.addNameTolist(chatId)
 
 method onSignal(self: ChatController, data: Signal) =
   var chatSignal = cast[ChatSignal](data)
