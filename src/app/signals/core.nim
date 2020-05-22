@@ -46,6 +46,7 @@ QtObject:
 
     var signalType: SignalType
     var signal: Signal
+    debug "Got signal", signal = jsonSignal
 
     case signalString:
       of "messages.new":

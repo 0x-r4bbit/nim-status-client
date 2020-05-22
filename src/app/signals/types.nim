@@ -36,4 +36,4 @@ type ChatSignal* = ref object of Signal
 
 # Override this method
 method onSignal*(self: SignalSubscriber, data: Signal) {.base.} =
-  echo "Received a signal"  # TODO: log signal received
+  echo "Received a signal" # TODO: log signal received
