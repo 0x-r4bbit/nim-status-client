@@ -7,7 +7,7 @@ import ../signals/types
 import profileView
 import "../../status/types" as status_types
 
-type ProfileController* = ref object of SignalSubscriber
+type ProfileController* = object
   view*: ProfileView
   variant*: QVariant
 

@@ -1,6 +1,7 @@
 import NimQml
 import strformat
 import strutils
+import chronicles
 
 import walletView
 import ../../status/wallet as status_wallet
@@ -43,3 +44,7 @@ proc init*(self: WalletController) =
 
   let symbol = "ETH"
   self.view.addAssetToList("Ethereum", symbol, fmt"{eth_value:.6}", "$" & fmt"{usd_balance:.6}", fmt"../../img/token-icons/{toLowerAscii(symbol)}.svg")
+
+method onSignal(self: WalletController, data: Signal) =
+  debug "New signal received"
+  discard
