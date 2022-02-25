@@ -28,6 +28,8 @@ QtObject {
 
     property var loadingHistoryMessagesInProgress: chatCommunitySectionModule.loadingHistoryMessagesInProgress
 
+    property var advancedModule: profileSectionModule.advancedModule
+
     function setActiveCommunity(communityId) {
         mainModule.setActiveSectionById(communityId);
     }
@@ -88,6 +90,8 @@ QtObject {
 
     property var walletSectionTransactionsInst: walletSectionTransactions
 
+    property bool isCommunityHistoryArchiveSupportEnabled: advancedModule? advancedModule.isCommunityHistoryArchiveSupportEnabled : false
+
     function reCalculateAddToGroupContacts(channel) {
         const contacts = getContactListObject()
 
@@ -146,8 +150,8 @@ QtObject {
     // Not Refactored Yet
     property var activeCommunityChatsModel: "" //chatsModelInst.communities.activeCommunity.chats
 
-    function createCommunity(communityName, communityDescription, checkedMembership, ensOnlySwitchChecked, communityColor, communityImage, imageCropperModalaX, imageCropperModalaY, imageCropperModalbX, imageCropperModalbY) {
-        communitiesModuleInst.createCommunity(communityName, communityDescription, checkedMembership, ensOnlySwitchChecked, communityColor, communityImage, imageCropperModalaX, imageCropperModalaY, imageCropperModalbX, imageCropperModalbY);
+    function createCommunity(communityName, communityDescription, checkedMembership, ensOnlySwitchChecked, communityColor, communityImage, imageCropperModalaX, imageCropperModalaY, imageCropperModalbX, imageCropperModalbY, historyArchiveSupportEnabled) {
+        communitiesModuleInst.createCommunity(communityName, communityDescription, checkedMembership, ensOnlySwitchChecked, communityColor, communityImage, imageCropperModalaX, imageCropperModalaY, imageCropperModalbX, imageCropperModalbY, historyArchiveSupportEnabled);
     }
 
     function importCommunity(communityKey) {

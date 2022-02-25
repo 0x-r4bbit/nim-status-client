@@ -138,6 +138,9 @@ type
   SwarmConfig* = object
     Enabled*: bool
 
+  TorrentConfig* = object
+    Enabled*: bool
+
   Whisper* = object
     Min*: int
     Max*: int
@@ -191,6 +194,7 @@ type
     LightEthConfig*: LightEthConfig
     WakuConfig*: WakuConfig
     WakuV2Config*: WakuConfig
+    TorrentConfig*: TorrentConfig
     BridgeConfig*: BridgeConfig
     ShhextConfig*: ShhextConfig
     WalletConfig*: WalletConfig
@@ -296,6 +300,9 @@ proc toDatabaseConfig*(jsonObj: JsonNode): DatabaseConfig =
   var pgConfigObj: JsonNode
   if(jsonObj.getProp("PGConfig", pgConfigObj)):
     result.PGConfig = toPGConfig(pgConfigObj)
+
+proc toTorrentConfig*(jsonObj: JsonNode): TorrentConfig =
+  discard jsonObj.getProp("Enabled", result.Enabled)
 
 proc toWakuConfig*(jsonObj: JsonNode): WakuConfig =
   discard jsonObj.getProp("Enabled", result.Enabled)
@@ -468,6 +475,10 @@ proc toNodeConfigDto*(jsonObj: JsonNode): NodeConfigDto =
   var wakuConfigObj: JsonNode
   if(jsonObj.getProp("WakuConfig", wakuConfigObj)):
     result.WakuConfig = toWakuConfig(wakuConfigObj)
+
+  var torrentConfigObj: JsonNode
+  if(jsonObj.getProp("TorrentConfig", torrentConfigObj)):
+    result.TorrentConfig = toTorrentConfig(torrentConfigObj)
 
   var wakuV2ConfigObj: JsonNode
   if(jsonObj.getProp("WakuV2Config", wakuV2ConfigObj)):

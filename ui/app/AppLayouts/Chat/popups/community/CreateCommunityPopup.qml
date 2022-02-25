@@ -67,6 +67,7 @@ StatusModal {
         property alias communityColor: colorDialog
         property alias communityImage: addImageButton
         property alias imageCropperModal: imageCropperModal
+        property alias historyArchiveSupportToggle: historyArchiveSupportToggle
 
         contentHeight: content.height
         bottomPadding: 8
@@ -333,6 +334,25 @@ StatusModal {
                 anchors.leftMargin: 16
             }
 
+            StatusListItem {
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: popup.store.isCommunityHistoryArchiveSupportEnabled
+                //% "Membership requirement"
+                title: qsTrId("History Archive Support")
+                sensor.onClicked: {
+                  if (popup.store.isCommunityHistoryArchiveSupportEnabled) {
+                    historyArchiveSupportToggle.checked = !historyArchiveSupportToggle.checked
+                  }
+                }
+                components: [
+                    StatusSwitch {
+                      id: historyArchiveSupportToggle
+                      enabled: popup.store.isCommunityHistoryArchiveSupportEnabled
+                      checked: community.historyArchiveSupportEnabled
+                    }
+                ]
+            }
+
             // Feature commented temporarily
             /*
             StatusSettingsLineButton {
@@ -421,7 +441,8 @@ StatusModal {
                         popup.contentItem.imageCropperModal.aX,
                         popup.contentItem.imageCropperModal.aY,
                         popup.contentItem.imageCropperModal.bX,
-                        popup.contentItem.imageCropperModal.bY
+                        popup.contentItem.imageCropperModal.bY,
+                        popup.contentItem.historyArchiveSupportToggle.checked
                   )
                 } else {
                     error = popup.store.createCommunity(
@@ -434,7 +455,8 @@ StatusModal {
                         popup.contentItem.imageCropperModal.aX,
                         popup.contentItem.imageCropperModal.aY,
                         popup.contentItem.imageCropperModal.bX,
-                        popup.contentItem.imageCropperModal.bY
+                        popup.contentItem.imageCropperModal.bY,
+                        popup.contentItem.historyArchiveSupportToggle.checked
                     )
                 }
 

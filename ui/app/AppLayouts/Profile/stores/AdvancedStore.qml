@@ -15,6 +15,7 @@ QtObject {
     property bool isTelemetryEnabled: advancedModule? advancedModule.isTelemetryEnabled : false
     property bool isAutoMessageEnabled: advancedModule? advancedModule.isAutoMessageEnabled : false
     property bool isDebugEnabled: advancedModule? advancedModule.isDebugEnabled : false
+    property bool isCommunityHistoryArchiveSupportEnabled: advancedModule? advancedModule.isCommunityHistoryArchiveSupportEnabled : false
 
     property var customNetworksModel: advancedModule? advancedModule.customNetworksModel : []
 
@@ -32,6 +33,7 @@ QtObject {
         readonly property string gifWidget: "gifWidget"
         readonly property string keycard: "keycard"
         readonly property string multiNetwork: "multiNetwork"
+        readonly property string communityHistoryArchiveSupport: "communityHistoryArchiveSupport"
     }
 
     function setGlobalNetworkId() {
@@ -126,6 +128,10 @@ QtObject {
         }
         else if (feature === experimentalFeatures.communities) {
             advancedModule.toggleCommunitySection()
+        }
+        else if (feature === experimentalFeatures.communityHistoryArchiveSupport) {
+          // toggle history archive support
+          advancedModule.toggleCommunityHistoryArchiveSupport()
         }
         else if (feature === experimentalFeatures.activityCenter) {
             localAccountSensitiveSettings.isActivityCenterEnabled = !localAccountSensitiveSettings.isActivityCenterEnabled

@@ -73,7 +73,8 @@ method createCommunity*(
     ensOnly: bool,
     color: string,
     imageUrl: string,
-    aX: int, aY: int, bX: int, bY: int) =
+    aX: int, aY: int, bX: int, bY: int,
+    historyArchiveSupportEnabled: bool) =
   self.communityService.createCommunity(
     name,
     description,
@@ -81,7 +82,8 @@ method createCommunity*(
     ensOnly,
     color,
     imageUrl,
-    aX, aY, bX, bY)
+    aX, aY, bX, bY,
+    historyArchiveSupportEnabled)
 
 method reorderCommunityChat*(
     self: Controller,

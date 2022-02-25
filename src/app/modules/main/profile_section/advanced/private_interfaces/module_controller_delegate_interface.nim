@@ -23,3 +23,6 @@ method onDebugToggled*(self: AccessInterface) {.base.} =
 
 method onCustomNetworkAdded*(self: AccessInterface, network: settings_service_type.Network) {.base.} =
   raise newException(ValueError, "No implementation available")
+
+method onCommunityHistoryArchiveSupportToggled*(self: AccessInterface) {.base.} =
+  raise newException(ValueError, "No implementation available")

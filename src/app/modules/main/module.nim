@@ -173,7 +173,7 @@ method delete*[T](self: Module[T]) =
   self.viewVariant.delete
   self.controller.delete
 
-proc createCommunityItem[T](self: Module[T], c: CommunityDto): SectionItem =
+proc createCommunityItem[T](self: Module[T], c: CommunityDto, s: CommunitySettingsDto): SectionItem =
   let (unviewedCount, mentionsCount) = self.controller.getNumOfNotificationsForCommunity(c.id)
   let hasNotification = unviewedCount > 0 or mentionsCount > 0
   let notificationsCount = mentionsCount # we need to add here number of requests
@@ -217,7 +217,8 @@ proc createCommunityItem[T](self: Module[T], c: CommunityDto): SectionItem =
       x.communityId,
       x.state,
       x.our
-    ))
+    )),
+    s.historyArchiveSupportEnabled
   )
 
 method load*[T](
@@ -277,7 +278,8 @@ method load*[T](
 
   # Community Section
   for c in joinedCommunities:
-    let communitySectionItem = self.createCommunityItem(c)
+    let communitySettings = communityService.getCommunitySettingsById(c.id)
+    let communitySectionItem = self.createCommunityItem(c, communitySettings)
     self.view.model().addItem(communitySectionItem)
     if(activeSectionId == communitySectionItem.id):
       activeSection = communitySectionItem
@@ -566,6 +568,7 @@ method getAppSearchModule*[T](self: Module[T]): QVariant =
 method communityJoined*[T](
   self: Module[T],
   community: CommunityDto,
+  communitySettings: CommunitySettingsDto,
   events: EventEmitter,
   settingsService: settings_service.ServiceInterface,
   contactsService: contacts_service.Service,
@@ -593,7 +596,8 @@ method communityJoined*[T](
     )
   self.communitySectionsModule[community.id].load(events, settingsService, contactsService, chatService, communityService, messageService, gifService, mailserversService)
 
-  let communitySectionItem = self.createCommunityItem(community)
+  let communitySettings = communityService.getCommunitySettingsById(community.id)
+  let communitySectionItem = self.createCommunityItem(community, communitySettings)
   if (firstCommunityJoined):
     # If there are no other communities, add the first community after the Chat section in the model so that the order is respected
     self.view.model().addItem(communitySectionItem, self.view.model().getItemIndex(conf.CHAT_SECTION_ID) + 1)
@@ -616,8 +620,10 @@ method communityLeft*[T](self: Module[T], communityId: string) =
 
 method communityEdited*[T](
     self: Module[T],
-    community: CommunityDto) =
-  self.view.editItem(self.createCommunityItem(community))
+    community: CommunityDto,
+    communityService: community_service.Service) =
+  let communitySettings = communityService.getCommunitySettingsById(community.id)
+  self.view.editItem(self.createCommunityItem(community, communitySettings))
 
 method getContactDetailsAsJson*[T](self: Module[T], publicKey: string): string =
   let contact =  self.controller.getContact(publicKey)

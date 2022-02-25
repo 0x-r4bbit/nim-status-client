@@ -1,6 +1,7 @@
 import json, json_serialization, chronicles
 import ./core
 import ./response_type
+import utils
 
 import status_go
 
@@ -16,4 +17,20 @@ proc getNodeConfig*(): RpcResponse[JsonNode] {.raises: [Exception].} =
 
   except RpcException as e:
     error "error doing rpc request", methodName = "getNodeConfig", exception=e.msg
+    raise newException(RpcException, e.msg)
+
+proc enableCommunityHistoryArchiveSupport*(): RpcResponse[JsonNode] {.raises: [Exception].} =
+  try:
+    let payload = %* []
+    result = core.callPrivateRPC("enableCommunityHistoryArchiveProtocol".prefix)
+  except RpcException as e:
+    error "error doing rpc request", methodName = "enableCommunityHistoryArchiveProtocol", exception=e.msg
+    raise newException(RpcException, e.msg)
+
+proc disableCommunityHistoryArchiveSupport*(): RpcResponse[JsonNode] {.raises: [Exception].} =
+  try:
+    let payload = %* []
+    result = core.callPrivateRPC("disableCommunityHistoryArchiveProtocol".prefix)
+  except RpcException as e:
+    error "error doing rpc request", methodName = "disableCommunityHistoryArchiveProtocol", exception=e.msg
     raise newException(RpcException, e.msg)

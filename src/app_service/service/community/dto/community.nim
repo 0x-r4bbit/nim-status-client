@@ -66,6 +66,10 @@ type CommunityDto* = object
   muted*: bool
   pendingRequestsToJoin*: seq[CommunityMembershipRequestDto]
 
+type CommunitySettingsDto* = object
+  id*: string
+  historyArchiveSupportEnabled*: bool
+
 proc toPermission(jsonObj: JsonNode): Permission =
   result = Permission()
   discard jsonObj.getProp("access", result.access)
@@ -163,6 +167,15 @@ proc toCommunityMembershipRequestDto*(jsonObj: JsonNode): CommunityMembershipReq
   discard jsonObj.getProp("communityId", result.communityId)
   discard jsonObj.getProp("our", result.our)
 
+proc toCommunitySettingsDto*(jsonObj: JsonNode): CommunitySettingsDto =
+  result = CommunitySettingsDto()
+  discard jsonObj.getProp("communityId", result.id)
+  discard jsonObj.getProp("historyArchiveSupportEnabled", result.historyArchiveSupportEnabled)
+
 proc parseCommunities*(response: RpcResponse[JsonNode]): seq[CommunityDto] =
   result = map(response.result.getElems(),
     proc(x: JsonNode): CommunityDto = x.toCommunityDto())
+
+proc parseCommunitiesSettings*(response: RpcResponse[JsonNode]): seq[CommunitySettingsDto] =
+  result = map(response.result.getElems(),
+    proc(x: JsonNode): CommunitySettingsDto = x.toCommunitySettingsDto())

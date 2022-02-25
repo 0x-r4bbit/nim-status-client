@@ -58,3 +58,12 @@ method isV2LightMode*(self: ServiceInterface): bool {.base.} =
 
 method isFullNode*(self: ServiceInterface): bool {.base.} =
   raise newException(ValueError, "No implementation available")
+
+method isCommunityHistoryArchiveSupportEnabled*(self: ServiceInterface): bool {.base.} =
+  raise newException(ValueError, "No implementation available")
+
+method enableCommunityHistoryArchiveSupport*(self: ServiceInterface): bool {.base.} =
+  raise newException(ValueError, "No implementation available")
+
+method disableCommunityHistoryArchiveSupport*(self: ServiceInterface): bool {.base.} =
+  raise newException(ValueError, "No implementation available")

@@ -1,4 +1,4 @@
-import json, sequtils, strutils, uuids
+import json, sequtils, strutils, uuids, os
 import json_serialization, chronicles
 
 import service_interface
@@ -318,6 +318,12 @@ method login*(self: Service, account: AccountDto, password: string): string =
         "Enabled": true,
         "OpenseaAPIKey": OPENSEA_API_KEY_RESOLVED
       },
+      "TorrentConfig": {
+        "Enabled": false,
+        "DataDir": joinPath(main_constants.defaultDataDir(), "data", "archivedata"),
+        "TorrentDir": joinPath(main_constants.defaultDataDir(), "data", "torrents"),
+        "Port": 9026
+      }
     }
 
     let response = status_account.login(account.name, account.keyUid, hashedPassword, account.identicon, thumbnailImage,

@@ -20,7 +20,7 @@ method joinCommunity*(self: AccessInterface, communityId: string): string {.base
 method requestToJoinCommunity*(self: AccessInterface, communityId: string, ensName: string) {.base.} =
   raise newException(ValueError, "No implementation available")
 
-method createCommunity*(self: AccessInterface, name: string, description: string, access: int, ensOnly: bool, color: string, imageUrl: string, aX: int, aY: int, bX: int, bY: int) {.base.} =
+method createCommunity*(self: AccessInterface, name: string, description: string, access: int, ensOnly: bool, color: string, imageUrl: string, aX: int, aY: int, bX: int, bY: int, historyArchiveSupportEnabled: bool) {.base.} =
   raise newException(ValueError, "No implementation available")
 
 method editCommunityChannel*(self: AccessInterface, communityId: string, chatId: string, name: string, description: string, categoryId: string, position: int) {.base.} =

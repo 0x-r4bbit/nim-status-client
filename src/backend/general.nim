@@ -45,3 +45,11 @@ proc dropPeerByID*(peer: string): RpcResponse[JsonNode] {.raises: [Exception].} 
 proc removePeer*(peer: string): RpcResponse[JsonNode] {.raises: [Exception].} =
   let payload = %* [peer]
   result = core.callPrivateRPC("admin_removePeer", payload)
+
+proc enableCommunityHistoryArchiveSupport*(): RpcResponse[JsonNode] {.raises: [Exception].} =
+  let payload = %* []
+  result = core.callPrivateRPC("enableCommunityHistoryArchiveProtocol", payload)
+
+proc disableCommunityHistoryArchiveSupport*(): RpcResponse[JsonNode] {.raises: [Exception].} =
+  let payload = %* []
+  result = core.callPrivateRPC("disableCommunityHistoryArchiveProtocol", payload)

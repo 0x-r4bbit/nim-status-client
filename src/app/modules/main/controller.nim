@@ -146,12 +146,12 @@ method init*(self: Controller) =
 
   self.events.on(SIGNAL_COMMUNITY_EDITED) do(e:Args):
     let args = CommunityArgs(e)
-    self.delegate.communityEdited(args.community)
+    self.delegate.communityEdited(args.community, self.communityService)
 
   self.events.on(SIGNAL_COMMUNITIES_UPDATE) do(e:Args):
     let args = CommunitiesArgs(e)
     for community in args.communities:
-      self.delegate.communityEdited(community)
+      self.delegate.communityEdited(community, self.communityService)
 
   self.events.on(SIGNAL_ENS_RESOLVED) do(e: Args):
     var args = ResolvedContactArgs(e)
@@ -192,6 +192,9 @@ method isConnected*(self: Controller): bool =
 
 method getJoinedCommunities*(self: Controller): seq[CommunityDto] =
   return self.communityService.getJoinedCommunities()
+
+method getCommunitiesSettings*(self: Controller): seq[CommunitySettingsDto] =
+  return self.communityService.getCommunitiesSettings()
 
 method checkForStoringPassword*(self: Controller) =
   # This method is called once user is logged in irrespective he is logged in

@@ -92,11 +92,13 @@ QtObject:
       chatService: chat_service.Service
       joinedCommunities: Table[string, CommunityDto] # [community_id, CommunityDto]
       allCommunities: Table[string, CommunityDto] # [community_id, CommunityDto]
+      communitiesSettings: Table[string, CommunitySettingsDto] # [community_id, CommunitySettingsDto]
       myCommunityRequests*: seq[CommunityMembershipRequestDto]
 
   # Forward declaration
   proc loadAllCommunities(self: Service): seq[CommunityDto]
   proc loadJoinedComunities(self: Service): seq[CommunityDto]
+  proc loadCommunitiesSettings(self: Service): seq[CommunitySettingsDto]
   proc loadMyPendingRequestsToJoin*(self: Service)
   proc handleCommunityUpdates(self: Service, communities: seq[CommunityDto], updatedChats: seq[ChatDto])
   proc pendingRequestsToJoinForCommunity*(self: Service, communityId: string): seq[CommunityMembershipRequestDto]
@@ -115,6 +117,7 @@ QtObject:
     result.chatService = chatService
     result.joinedCommunities = initTable[string, CommunityDto]()
     result.allCommunities = initTable[string, CommunityDto]()
+    result.communitiesSettings = initTable[string, CommunitySettingsDto]()
     result.myCommunityRequests = @[]
 
   proc doConnect(self: Service) =
@@ -307,6 +310,10 @@ QtObject:
       for community in allCommunities:
         self.allCommunities[community.id] = community
 
+      let communitiesSettings = self.loadCommunitiesSettings()
+      for settings in communitiesSettings:
+        self.communitiesSettings[settings.id] = settings
+
       self.loadMyPendingRequestsToJoin()
 
     except Exception as e:
@@ -321,6 +328,19 @@ QtObject:
   proc loadJoinedComunities(self: Service): seq[CommunityDto] =
     let response = status_go.getJoinedComunities()
     return parseCommunities(response)
+
+  proc loadCommunitiesSettings(self: Service): seq[CommunitySettingsDto] =
+    let response = status_go.getCommunitiesSettings()
+    return parseCommunitiesSettings(response)
+
+  proc getCommunitiesSettings*(self: Service): seq[CommunitySettingsDto] =
+    return toSeq(self.communitiesSettings.values)
+
+  proc getCommunitySettingsById*(self: Service, communityId: string): CommunitySettingsDto =
+    if(not self.communitiesSettings.hasKey(communityId)):
+      error "error: requested community settings don't exist"
+      return
+    return self.communitiesSettings[communityId]
 
   proc getJoinedCommunities*(self: Service): seq[CommunityDto] =
     return toSeq(self.joinedCommunities.values)
@@ -425,9 +445,11 @@ QtObject:
         return
 
       let updatedCommunity = response.result["communities"][0].toCommunityDto()
+      let communitySettings = response.result["communitiesSettings"][0].toCommunitySettingsDto()
 
       self.allCommunities[communityId] = updatedCommunity
       self.joinedCommunities[communityId] = updatedCommunity
+      self.communitiesSettings[communityId] = communitySettings
 
       for k, chat in updatedCommunity.chats:
         let fullChatId = communityId & chat.id
@@ -497,6 +519,8 @@ QtObject:
       # Update community so that joined, member list and isMember are updated
       let updatedCommunity = response.result["communities"][0].toCommunityDto()
       self.allCommunities[communityId] = updatedCommunity
+      if self.communitiesSettings.hasKey(communityId):
+        self.communitiesSettings.del(communityId)
       self.events.emit(SIGNAL_COMMUNITIES_UPDATE, CommunitiesArgs(communities: @[updatedCommunity]))
 
       # remove this from the joinedCommunities list
@@ -514,7 +538,8 @@ QtObject:
       ensOnly: bool,
       color: string,
       imageUrl: string,
-      aX: int, aY: int, bX: int, bY: int) =
+      aX: int, aY: int, bX: int, bY: int,
+      historyArchiveSupportEnabled: bool) =
     try:
       var image = singletonInstance.utils.formatImagePath(imageUrl)
       let response = status_go.createCommunity(
@@ -524,7 +549,8 @@ QtObject:
         ensOnly,
         color,
         image,
-        aX, aY, bX, bY)
+        aX, aY, bX, bY,
+        historyArchiveSupportEnabled)
 
       if response.error != nil:
         let error = Json.decode($response.error, RpcError)
@@ -532,9 +558,11 @@ QtObject:
 
       if response.result != nil and response.result.kind != JNull:
         let community = response.result["communities"][0].toCommunityDto()
+        let communitySettings = response.result["communitiesSettings"][0].toCommunitySettingsDto()
 
-        # add this to the joinedCommunities list
+        # add this to the joinedCommunities list and communitiesSettings
         self.joinedCommunities[community.id] = community
+        self.communitiesSettings[community.id] = communitySettings
 
         self.events.emit(SIGNAL_COMMUNITY_CREATED, CommunityArgs(community: community))
     except Exception as e:
@@ -549,7 +577,8 @@ QtObject:
       ensOnly: bool,
       color: string,
       imageUrl: string,
-      aX: int, aY: int, bX: int, bY: int) =
+      aX: int, aY: int, bX: int, bY: int,
+      historyArchiveSupportEnabled: bool) =
     try:
       var image = singletonInstance.utils.formatImagePath(imageUrl)
       let response = status_go.editCommunity(
@@ -560,7 +589,8 @@ QtObject:
         ensOnly,
         color,
         image,
-        aX, aY, bX, bY)
+        aX, aY, bX, bY,
+        historyArchiveSupportEnabled)
 
       if response.error != nil:
         let error = Json.decode($response.error, RpcError)
@@ -568,8 +598,10 @@ QtObject:
 
       if response.result != nil and response.result.kind != JNull:
         var community = response.result["communities"][0].toCommunityDto()
+        var communitySettings = response.result["communitiesSettings"][0].toCommunitySettingsDto()
 
         self.saveUpdatedJoinedCommunity(community)
+        self.communitiesSettings[community.id] = communitySettings
 
         self.events.emit(SIGNAL_COMMUNITY_EDITED, CommunityArgs(community: community))
     except Exception as e:
@@ -838,12 +870,22 @@ QtObject:
       if(communityJArr.len == 0):
         raise newException(RpcException, fmt"`communities` array is empty in the response for community id: {communityKey}")
 
+      var communitiesSettingsJArr: JsonNode
+      if(not response.result.getProp("communitiesSettings", communitiesSettingsJArr)):
+        raise newException(RpcException, fmt"there is no `communitiesSettings` key in the response for community id: {communityKey}")
+
+      if(communitiesSettingsJArr.len == 0):
+        raise newException(RpcException, fmt"`communitiesSettings` array is empty in the response for community id: {communityKey}")
+
       var chatsJArr: JsonNode
       if(not response.result.getProp("chats", chatsJArr)):
         raise newException(RpcException, fmt"there is no `chats` key in the response for community id: {communityKey}")
 
       let communityDto = communityJArr[0].toCommunityDto()
       self.joinedCommunities[communityDto.id] = communityDto
+
+      let communitySettingsDto = communitiesSettingsJArr[0].toCommunitySettingsDto()
+      self.communitiesSettings[communitySettingsDto.id] = communitySettingsDto
 
       for chatObj in chatsJArr:
         let chatDto = chatObj.toChatDto()

@@ -37,6 +37,12 @@ method setWakuV2LightClientEnabled*(self: AccessInterface, enabled: bool) {.base
 method enableDeveloperFeatures*(self: AccessInterface) {.base.} =
   raise newException(ValueError, "No implementation available")
 
+method toggleCommunityHistoryArchiveSupport*(self: AccessInterface) {.base.} =
+  raise newException(ValueError, "No implementation available")
+
+method isCommunityHistoryArchiveSupportEnabled*(self: AccessInterface): bool {.base.} =
+  raise newException(ValueError, "No implementation available")
+
 method toggleTelemetry*(self: AccessInterface) {.base.} =
   raise newException(ValueError, "No implementation available")
 

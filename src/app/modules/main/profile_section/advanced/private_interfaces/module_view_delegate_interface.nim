@@ -67,3 +67,9 @@ method toggleNodeManagementSection*(self: AccessInterface) {.base.} =
 
 method enableDeveloperFeatures*(self: AccessInterface) {.base.} =
   raise newException(ValueError, "No implementation available")
+
+method isCommunityHistoryArchiveSupportEnabled*(self: AccessInterface): bool {.base.} =
+  raise newException(ValueError, "No implementation available")
+
+method toggleCommunityHistoryArchiveSupport*(self: AccessInterface) {.base.} =
+  raise newException(ValueError, "No implementation available")
