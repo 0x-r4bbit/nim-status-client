@@ -568,7 +568,6 @@ method getAppSearchModule*[T](self: Module[T]): QVariant =
 method communityJoined*[T](
   self: Module[T],
   community: CommunityDto,
-  communitySettings: CommunitySettingsDto,
   events: EventEmitter,
   settingsService: settings_service.ServiceInterface,
   contactsService: contacts_service.Service,

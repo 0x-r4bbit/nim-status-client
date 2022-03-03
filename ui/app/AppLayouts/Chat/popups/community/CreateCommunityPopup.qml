@@ -348,7 +348,7 @@ StatusModal {
                     StatusSwitch {
                       id: historyArchiveSupportToggle
                       enabled: popup.store.isCommunityHistoryArchiveSupportEnabled
-                      checked: community.historyArchiveSupportEnabled
+                      checked: isEdit ? community.historyArchiveSupportEnabled : false
                     }
                 ]
             }
